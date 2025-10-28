@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
-from models import db, User, Workout, WorkoutHistory
+from project.models import db, User, Workout, WorkoutHistory
+
+
 from rl_agent import WorkoutRecommendationAgent, EnhancedWorkoutRecommendationAgent
 from datetime import datetime, timedelta
 import json
