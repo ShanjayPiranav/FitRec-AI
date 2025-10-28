@@ -1,4 +1,4 @@
-from models import db, Workout, User
+from project.models import db, Workout, User
 from datetime import datetime
 
 def seed_workouts():

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Tuple, Optional
-from models import Workout, WorkoutHistory, User
+from project.models import Workout, WorkoutHistory, User
 import json
 import pickle
 import os
