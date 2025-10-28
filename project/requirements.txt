@@ -9,6 +9,8 @@ plotly==5.15.0
 dash==2.14.2
 dash-bootstrap-components==1.4.1
 python-dotenv==1.0.0
-setuptools
+setuptools>=68.0
 wheel
+gunicorn
+
 
