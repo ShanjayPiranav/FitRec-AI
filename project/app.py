@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from project.models import db, User, Workout, WorkoutHistory
 
 
-from rl_agent import WorkoutRecommendationAgent, EnhancedWorkoutRecommendationAgent
+from project.rl_agent import WorkoutRecommendationAgent, EnhancedWorkoutRecommendationAgent
+
 from datetime import datetime, timedelta
 import json
 import os
