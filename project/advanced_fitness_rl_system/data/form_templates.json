@@ -1,0 +1,4 @@
+{
+  "squat": {"knee_alignment_min": 0.8, "back_angle_min": 160},
+  "pushup": {"alignment_thresh": 0.1, "elbow_angle_max": 120}
+}

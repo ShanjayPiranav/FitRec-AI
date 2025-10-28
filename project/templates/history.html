@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Workout History - FitRec AI{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="fw-bold mb-2">
+                        <i class="fas fa-history text-primary me-2"></i>
+                        Workout History
+                    </h1>
+                    <p class="text-muted mb-0">Track your fitness journey and progress over time</p>
+                </div>
+                <div class="text-end">
+                    <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                        <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-dumbbell fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ history|length }}</h3>
+                <p class="mb-0">Total Workouts</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-clock fa-2x mb-3"></i>
+                <h3 class="fw-bold">
+                    {% set total_duration = history|map(attribute='duration')|list|sum %}
+                    {{ total_duration }}
+                </h3>
+                <p class="mb-0">Total Minutes</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-star fa-2x mb-3"></i>
+                <h3 class="fw-bold">
+                    {% if history %}
+                        {% set enjoyment_ratings = history|map(attribute='enjoyment_rating')|select|list %}
+                        {% if enjoyment_ratings %}
+                            {% set avg_enjoyment = enjoyment_ratings|sum / enjoyment_ratings|length %}
+                            {{ "%.1f"|format(avg_enjoyment) }}
+                        {% else %}
+                            0.0
+                        {% endif %}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="mb-0">Avg. Enjoyment</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-fire fa-2x mb-3"></i>
+                <h3 class="fw-bold">
+                    {% if history %}
+                        {% set intensity_values = history|map(attribute='intensity')|select|list %}
+                        {% if intensity_values %}
+                            {% set avg_intensity = intensity_values|sum / intensity_values|length %}
+                            {{ "%.1f"|format(avg_intensity) }}
+                        {% else %}
+                            0.0
+                        {% endif %}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="mb-0">Avg. Intensity</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workout History Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list text-primary me-2"></i>All Workouts
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" id="categoryFilter" style="width: auto;">
+                            <option value="">All Categories</option>
+                            <option value="strength">Strength</option>
+                            <option value="cardio">Cardio</option>
+                            <option value="flexibility">Flexibility</option>
+                        </select>
+                        <select class="form-select form-select-sm" id="difficultyFilter" style="width: auto;">
+                            <option value="">All Levels</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if history %}
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Workout</th>
+                                    <th>Category</th>
+                                    <th>Duration</th>
+                                    <th>Intensity</th>
+                                    <th>Enjoyment</th>
+                                    <th>Difficulty</th>
+                                    <th>Completion</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in history %}
+                                <tr data-category="{{ entry.workout.category }}" data-difficulty="{{ entry.workout.difficulty }}">
+                                    <td>
+                                        <strong>{{ entry.date.strftime('%b %d') }}</strong><br>
+                                        <small class="text-muted">{{ entry.date.strftime('%Y') }}</small>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('workout_detail', workout_id=entry.workout.id) }}" class="text-decoration-none">
+                                            <strong>{{ entry.workout.name }}</strong>
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">{{ entry.workout.equipment|title }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ entry.workout.category|title }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{% if entry.duration is not none %}{{ entry.duration }} min{% else %}N/A{% endif %}</strong>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            {% if entry.intensity is not none %}
+                                                <div class="progress-bar bg-info" style="width: {{ entry.intensity * 10 }}%">
+                                                    {{ entry.intensity }}/10
+                                                </div>
+                                            {% else %}
+                                                <div class="progress-bar bg-info" style="width: 0%">
+                                                    N/A
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="rating-stars">
+                                            {% if entry.enjoyment_rating is not none %}
+                                                {% for i in range(entry.enjoyment_rating) %}
+                                                <i class="fas fa-star"></i>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="rating-stars">
+                                            {% if entry.difficulty_rating is not none %}
+                                                {% for i in range(entry.difficulty_rating) %}
+                                                <i class="fas fa-star"></i>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            {% if entry.completion_rate is not none %}
+                                                <div class="progress-bar bg-success" style="width: {{ entry.completion_rate * 100 }}%">
+                                                    {{ "%.0f"|format(entry.completion_rate * 100) }}%
+                                                </div>
+                                            {% else %}
+                                                <div class="progress-bar bg-success" style="width: 0%">
+                                                    N/A
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('workout_detail', workout_id=entry.workout.id) }}" 
+                                               class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-success" 
+                                                    onclick="repeatWorkout({{ entry.workout.id }})" title="Repeat Workout">
+                                                <i class="fas fa-redo"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-dumbbell fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No workout history yet</h4>
+                        <p class="text-muted">Start your fitness journey by completing your first workout!</p>
+                        <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                            <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Charts -->
+    {% if history %}
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>Enjoyment Trend
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="enjoymentChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>Workout Categories
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Filter functionality
+document.getElementById('categoryFilter').addEventListener('change', filterTable);
+document.getElementById('difficultyFilter').addEventListener('change', filterTable);
+
+function filterTable() {
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const difficultyFilter = document.getElementById('difficultyFilter').value;
+    const rows = document.querySelectorAll('#historyTable tbody tr');
+    
+    rows.forEach(row => {
+        const category = row.getAttribute('data-category');
+        const difficulty = row.getAttribute('data-difficulty');
+        
+        const categoryMatch = !categoryFilter || category === categoryFilter;
+        const difficultyMatch = !difficultyFilter || difficulty === difficultyFilter;
+        
+        if (categoryMatch && difficultyMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function repeatWorkout(workoutId) {
+    window.location.href = `/workout/${workoutId}`;
+}
+
+// Charts
+{% if history %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Enjoyment Trend Chart
+    const enjoymentCtx = document.getElementById('enjoymentChart').getContext('2d');
+    const enjoymentData = {
+        labels: [
+            {% for entry in history[-10:] %}
+                '{{ entry.date.strftime("%b %d") }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Enjoyment Rating',
+            data: [
+                {% for entry in history[-10:] %}
+                    {{ entry.enjoyment_rating }},
+                {% endfor %}
+            ],
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.4
+        }]
+    };
+    
+    new Chart(enjoymentCtx, {
+        type: 'line',
+        data: enjoymentData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5
+                }
+            }
+        }
+    });
+    
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    const categoryCounts = {};
+    {% for entry in history %}
+        const category = '{{ entry.workout.category }}';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    {% endfor %}
+    
+    const categoryData = {
+        labels: Object.keys(categoryCounts).map(cat => cat.charAt(0).toUpperCase() + cat.slice(1)),
+        datasets: [{
+            data: Object.values(categoryCounts),
+            backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#F44336'],
+        }]
+    };
+    
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: categoryData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}AI Recommendation - FitRec AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- AI Recommendation Card -->
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-robot fa-2x"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-0">🤖 AI-Powered Workout Recommendation</h3>
+                            <p class="mb-0 mt-1">Personalized for your current health status</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Workout Details -->
+                        <div class="col-lg-8">
+                            <div class="workout-details">
+                                <h2 class="text-primary mb-3">
+                                    <i class="fas fa-dumbbell me-2"></i>{{ recommendation.workout_name }}
+                                </h2>
+                                
+                                <!-- Intensity Badge -->
+                                <div class="mb-3">
+                                    {% if recommendation.intensity_level == 'low' %}
+                                        <span class="badge bg-success fs-6 px-3 py-2">
+                                            <i class="fas fa-leaf me-1"></i>Low Intensity
+                                        </span>
+                                    {% elif recommendation.intensity_level == 'medium' %}
+                                        <span class="badge bg-warning fs-6 px-3 py-2">
+                                            <i class="fas fa-fire me-1"></i>Medium Intensity
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger fs-6 px-3 py-2">
+                                            <i class="fas fa-bolt me-1"></i>High Intensity
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Workout Stats -->
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-primary">{{ recommendation.duration }}</div>
+                                            <small class="text-muted">Minutes</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-success">{{ recommendation.category|title }}</div>
+                                            <small class="text-muted">Category</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-info">{{ recommendation.muscle_group|title }}</div>
+                                            <small class="text-muted">Target Area</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-secondary">{{ recommendation.equipment|title }}</div>
+                                            <small class="text-muted">Equipment</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="mb-4">
+                                    <h5><i class="fas fa-info-circle me-2"></i>Description</h5>
+                                    <p class="text-muted">{{ recommendation.description }}</p>
+                                </div>
+
+                                <!-- Instructions -->
+                                <div class="mb-4">
+                                    <h5><i class="fas fa-list-ol me-2"></i>Instructions</h5>
+                                    <div class="bg-light p-3 rounded">
+                                        {{ recommendation.instructions }}
+                                    </div>
+                                </div>
+
+                                <!-- AI Reasoning -->
+                                <div class="mb-4">
+                                    <h5><i class="fas fa-brain me-2"></i>AI Reasoning</h5>
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded border-start border-primary border-4">
+                                        <p class="mb-0">{{ recommendation.reasoning }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar -->
+                        <div class="col-lg-4">
+                            <!-- Quick Actions -->
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-play me-2"></i>Quick Actions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-success w-100 mb-2" data-bs-toggle="modal" data-bs-target="#startWorkoutModal">
+                                        <i class="fas fa-play me-2"></i>Start Workout
+                                    </button>
+                                    <a href="{{ url_for('health_input') }}" class="btn btn-outline-primary w-100 mb-2">
+                                        <i class="fas fa-redo me-2"></i>Get New Recommendation
+                                    </a>
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">
+                                        <i class="fas fa-home me-2"></i>Back to Dashboard
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Health Summary -->
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Health Summary</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Fitness Level:</small>
+                                        <div class="progress mb-1" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: {{ (recommendation.state[0] / 10) * 100 }}%"></div>
+                                        </div>
+                                        <small>{{ recommendation.state[0] }}/10</small>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Fatigue Level:</small>
+                                        <div class="progress mb-1" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: {{ (recommendation.state[1] / 10) * 100 }}%"></div>
+                                        </div>
+                                        <small>{{ recommendation.state[1] }}/10</small>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Days Since Last Workout:</small>
+                                        <div class="badge bg-info">{{ recommendation.state[2] }}</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Age Group:</small>
+                                        <div class="badge bg-secondary">{{ recommendation.state[3] }}</div>
+                                    </div>
+                                    {% if recommendation.state[4] %}
+                                        <div class="mb-2">
+                                            <small class="text-muted">Injury Constraints:</small>
+                                            <div class="badge bg-danger">Present</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Workout Modal -->
+<div class="modal fade" id="startWorkoutModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-play me-2"></i>Start Workout: {{ recommendation.workout_name }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('complete_enhanced_workout') }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="actual_duration" class="form-label">
+                                    <i class="fas fa-clock me-2"></i>Actual Duration (minutes)
+                                </label>
+                                <input type="number" class="form-control" id="actual_duration" name="actual_duration" 
+                                       value="{{ recommendation.duration }}" min="1" max="180" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="intensity" class="form-label">
+                                    <i class="fas fa-fire me-2"></i>Perceived Intensity
+                                </label>
+                                <select class="form-select" id="intensity" name="intensity" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="enjoyment_rating" class="form-label">
+                                    <i class="fas fa-smile me-2"></i>Enjoyment Rating (1-5)
+                                </label>
+                                <select class="form-select" id="enjoyment_rating" name="enjoyment_rating" required>
+                                    <option value="1">1 - Not enjoyable</option>
+                                    <option value="2">2 - Slightly enjoyable</option>
+                                    <option value="3" selected>3 - Neutral</option>
+                                    <option value="4">4 - Enjoyable</option>
+                                    <option value="5">5 - Very enjoyable</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="difficulty_rating" class="form-label">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Difficulty Rating (1-5)
+                                </label>
+                                <select class="form-select" id="difficulty_rating" name="difficulty_rating" required>
+                                    <option value="1">1 - Very easy</option>
+                                    <option value="2">2 - Easy</option>
+                                    <option value="3" selected>3 - Moderate</option>
+                                    <option value="4">4 - Hard</option>
+                                    <option value="5">5 - Very hard</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="completion_rate" class="form-label">
+                                    <i class="fas fa-percentage me-2"></i>Completion Rate (0-100%)
+                                </label>
+                                <input type="range" class="form-range" id="completion_rate" name="completion_rate" 
+                                       min="0" max="100" value="100" oninput="updateCompletionValue()">
+                                <div class="text-center">
+                                    <span id="completion_value" class="badge bg-success">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">
+                            <i class="fas fa-sticky-note me-2"></i>Notes (Optional)
+                        </label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="How did the workout feel? Any issues or observations..."></textarea>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Help the AI learn:</strong> Your feedback helps improve future recommendations. 
+                        Be honest about your experience!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Complete Workout
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateCompletionValue() {
+    const slider = document.getElementById('completion_rate');
+    const value = document.getElementById('completion_value');
+    const percentage = slider.value;
+    value.textContent = percentage + '%';
+    
+    // Update badge color based on completion rate
+    if (percentage >= 80) {
+        value.className = 'badge bg-success';
+    } else if (percentage >= 60) {
+        value.className = 'badge bg-warning';
+    } else {
+        value.className = 'badge bg-danger';
+    }
+}
+
+// Initialize completion value
+updateCompletionValue();
+</script>
+{% endblock %}
+

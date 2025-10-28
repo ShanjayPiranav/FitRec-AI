@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - FitRec AI{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="fw-bold mb-2">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>
+                        Analytics & Insights
+                    </h1>
+                    <p class="text-muted mb-0">Deep dive into your fitness performance and patterns</p>
+                </div>
+                <div class="text-end">
+                    <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                        <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-dumbbell fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ insights.total_workouts if insights.total_workouts else 0 }}</h3>
+                <p class="mb-0">Total Workouts</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-star fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ "%.1f"|format(insights.average_enjoyment) if insights.average_enjoyment else 0 }}/5</h3>
+                <p class="mb-0">Avg. Enjoyment</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-fire fa-2x mb-3"></i>
+                <h3 class="fw-bold">
+                    {% if chart_data.enjoyment_trend %}
+                        {{ chart_data.enjoyment_trend|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="mb-0">Active Days</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-trending-up fa-2x mb-3"></i>
+                <h3 class="fw-bold">
+                    {% if insights.favorite_categories %}
+                        {{ insights.favorite_categories|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="mb-0">Categories Tried</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Workout Categories Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-layer-group text-primary me-2"></i>Difficulty Level Preferences
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="difficultyChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>Enjoyment Trend Over Time
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="enjoymentTrendChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>Completion Rate Trend
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="completionTrendChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights -->
+    {% if insights and insights.message is not defined %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-brain text-primary me-2"></i>AI-Generated Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if insights.favorite_categories %}
+                        <div class="col-md-6 mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-heart text-danger me-2"></i>Your Favorite Categories
+                            </h6>
+                            {% for category, score in insights.favorite_categories.items() %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary fs-6">{{ category|title }}</span>
+                                <div class="d-flex align-items-center">
+                                    <span class="rating-stars me-2">
+                                        {% for i in range(score|int) %}
+                                        <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </span>
+                                    <span class="text-muted">{{ "%.1f"|format(score) }}/5</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if insights.preferred_difficulty %}
+                        <div class="col-md-6 mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-layer-group text-warning me-2"></i>Difficulty Preferences
+                            </h6>
+                            {% for difficulty, score in insights.preferred_difficulty.items() %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-{{ 'success' if difficulty == 'beginner' else 'warning' if difficulty == 'intermediate' else 'danger' }} fs-6">
+                                    {{ difficulty|title }}
+                                </span>
+                                <div class="d-flex align-items-center">
+                                    <span class="rating-stars me-2">
+                                        {% for i in range(score|int) %}
+                                        <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </span>
+                                    <span class="text-muted">{{ "%.1f"|format(score) }}/5</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if insights.top_enjoyed_workouts %}
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-trophy text-warning me-2"></i>Top Enjoyed Workouts
+                        </h6>
+                        <div class="row">
+                            {% for workout_name, score in insights.top_enjoyed_workouts[:6] %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="fw-bold mb-2">{{ workout_name }}</h6>
+                                        <div class="rating-stars mb-2">
+                                            {% for i in range(score|int) %}
+                                            <i class="fas fa-star"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ "%.1f"|format(score) }}/5 rating</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Performance Recommendations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb text-primary me-2"></i>Performance Recommendations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-dumbbell fa-2x text-primary mb-3"></i>
+                                    <h6 class="fw-bold">Strength Training</h6>
+                                    <p class="text-muted small">Consider adding more strength workouts to build muscle and improve overall fitness.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-heartbeat fa-2x text-success mb-3"></i>
+                                    <h6 class="fw-bold">Cardio Balance</h6>
+                                    <p class="text-muted small">Maintain a good balance between cardio and strength training for optimal results.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock fa-2x text-warning mb-3"></i>
+                                    <h6 class="fw-bold">Consistency</h6>
+                                    <p class="text-muted small">Try to maintain regular workout sessions for better long-term results.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Category Distribution Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    const categoryData = {
+        labels: [
+            {% for category, count in chart_data.categories.items() %}
+                '{{ category|title }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for category, count in chart_data.categories.items() %}
+                    {{ count }},
+                {% endfor %}
+            ],
+            backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    };
+    
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: categoryData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Difficulty Chart
+    const difficultyCtx = document.getElementById('difficultyChart').getContext('2d');
+    const difficultyData = {
+        labels: [
+            {% for difficulty, count in chart_data.difficulty.items() %}
+                '{{ difficulty|title }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            data: [
+                {% for difficulty, count in chart_data.difficulty.items() %}
+                    {{ count }},
+                {% endfor %}
+            ],
+            backgroundColor: ['#4CAF50', '#FF9800', '#F44336'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    };
+    
+    new Chart(difficultyCtx, {
+        type: 'bar',
+        data: difficultyData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Enjoyment Trend Chart
+    const enjoymentTrendCtx = document.getElementById('enjoymentTrendChart').getContext('2d');
+    const enjoymentTrendData = {
+        labels: [
+            {% for entry in chart_data.enjoyment_trend[-10:] %}
+                '{{ entry.date }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Enjoyment Rating',
+            data: [
+                {% for entry in chart_data.enjoyment_trend[-10:] %}
+                    {{ entry.enjoyment }},
+                {% endfor %}
+            ],
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    };
+    
+    new Chart(enjoymentTrendCtx, {
+        type: 'line',
+        data: enjoymentTrendData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5
+                }
+            }
+        }
+    });
+    
+    // Completion Trend Chart
+    const completionTrendCtx = document.getElementById('completionTrendChart').getContext('2d');
+    const completionTrendData = {
+        labels: [
+            {% for entry in chart_data.completion_trend[-10:] %}
+                '{{ entry.date }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Completion Rate (%)',
+            data: [
+                {% for entry in chart_data.completion_trend[-10:] %}
+                    {{ entry.completion * 100 }},
+                {% endfor %}
+            ],
+            borderColor: '#2196F3',
+            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    };
+    
+    new Chart(completionTrendCtx, {
+        type: 'line',
+        data: completionTrendData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Health Input - FitRec AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-heartbeat me-2"></i>
+                        Health Input Form
+                    </h3>
+                    <p class="mb-0 mt-2">Provide your current health status for personalized recommendations</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('health_input') }}">
+                        <div class="row">
+                            <!-- Fitness Level -->
+                            <div class="col-md-6 mb-3">
+                                <label for="fitness_level" class="form-label">
+                                    <i class="fas fa-dumbbell me-2"></i>Current Fitness Level (1-10)
+                                </label>
+                                <input type="range" class="form-range" id="fitness_level" name="fitness_level" 
+                                       min="1" max="10" value="5" oninput="updateFitnessValue()">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Beginner (1-3)</small>
+                                    <small class="text-muted">Intermediate (4-7)</small>
+                                    <small class="text-muted">Advanced (8-10)</small>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span id="fitness_value" class="badge bg-primary fs-6">5</span>
+                                </div>
+                            </div>
+
+                            <!-- Fatigue Level -->
+                            <div class="col-md-6 mb-3">
+                                <label for="fatigue_level" class="form-label">
+                                    <i class="fas fa-tired me-2"></i>Fatigue Level (1-10)
+                                </label>
+                                <input type="range" class="form-range" id="fatigue_level" name="fatigue_level" 
+                                       min="1" max="10" value="5" oninput="updateFatigueValue()">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Well Rested (1-3)</small>
+                                    <small class="text-muted">Moderate (4-7)</small>
+                                    <small class="text-muted">Very Tired (8-10)</small>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <span id="fatigue_value" class="badge bg-warning fs-6">5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Days Since Last Workout -->
+                            <div class="col-md-6 mb-3">
+                                <label for="days_since_last" class="form-label">
+                                    <i class="fas fa-calendar me-2"></i>Days Since Last Workout
+                                </label>
+                                <input type="number" class="form-control" id="days_since_last" name="days_since_last" 
+                                       min="0" max="30" value="1" required>
+                                <div class="form-text">Enter 0 if you worked out today</div>
+                            </div>
+
+                            <!-- Age -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-2"></i>Age Group
+                                </label>
+                                <div class="form-control-plaintext">
+                                    {% if user.age < 26 %}
+                                        <span class="badge bg-success">18-25</span>
+                                    {% elif user.age < 36 %}
+                                        <span class="badge bg-info">26-35</span>
+                                    {% elif user.age < 46 %}
+                                        <span class="badge bg-warning">36-45</span>
+                                    {% elif user.age < 56 %}
+                                        <span class="badge bg-secondary">46-55</span>
+                                    {% else %}
+                                        <span class="badge bg-dark">55+</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Injury Constraints -->
+                        <div class="mb-3">
+                            <label for="injury_constraints" class="form-label">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Injury Constraints (Optional)
+                            </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="back" id="back_injury" name="injury_constraints">
+                                        <label class="form-check-label" for="back_injury">
+                                            Back Issues
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="knee" id="knee_injury" name="injury_constraints">
+                                        <label class="form-check-label" for="knee_injury">
+                                            Knee Problems
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="shoulder" id="shoulder_injury" name="injury_constraints">
+                                        <label class="form-check-label" for="shoulder_injury">
+                                            Shoulder Issues
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="ankle" id="ankle_injury" name="injury_constraints">
+                                        <label class="form-check-label" for="ankle_injury">
+                                            Ankle Problems
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="wrist" id="wrist_injury" name="injury_constraints">
+                                        <label class="form-check-label" for="wrist_injury">
+                                            Wrist Issues
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="hip" id="hip_injury" name="injury_constraints">
+                                        <label class="form-check-label" for="hip_injury">
+                                            Hip Problems
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text">Select any injuries or physical limitations to avoid exercises that could aggravate them</div>
+                        </div>
+
+                        <!-- Equipment Constraints -->
+                        <div class="mb-3">
+                            <label for="equipment_constraints" class="form-label">
+                                <i class="fas fa-dumbbell me-2"></i>Available Equipment (Optional)
+                            </label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="dumbbells" id="dumbbells" name="equipment_constraints">
+                                        <label class="form-check-label" for="dumbbells">
+                                            Dumbbells
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="resistance_bands" id="resistance_bands" name="equipment_constraints">
+                                        <label class="form-check-label" for="resistance_bands">
+                                            Resistance Bands
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="yoga_mat" id="yoga_mat" name="equipment_constraints">
+                                        <label class="form-check-label" for="yoga_mat">
+                                            Yoga Mat
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="pull_up_bar" id="pull_up_bar" name="equipment_constraints">
+                                        <label class="form-check-label" for="pull_up_bar">
+                                            Pull-up Bar
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="bench" id="bench" name="equipment_constraints">
+                                        <label class="form-check-label" for="bench">
+                                            Bench
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="none" id="none" name="equipment_constraints">
+                                        <label class="form-check-label" for="none">
+                                            Bodyweight Only
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text">Select equipment you have available for more targeted recommendations</div>
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div class="mb-3">
+                            <label for="additional_notes" class="form-label">
+                                <i class="fas fa-sticky-note me-2"></i>Additional Notes (Optional)
+                            </label>
+                            <textarea class="form-control" id="additional_notes" name="additional_notes" rows="3" 
+                                      placeholder="Any other health considerations, preferences, or notes..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-magic me-2"></i>Get AI Recommendation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Health Tips -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Health Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Fitness Level:</strong> Be honest about your current fitness level for the best recommendations
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Fatigue:</strong> Consider your sleep quality and overall energy levels
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Recovery:</strong> More days since last workout usually means you can handle higher intensity
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>Injuries:</strong> Always prioritize safety - the AI will avoid exercises that could cause harm
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateFitnessValue() {
+    const slider = document.getElementById('fitness_level');
+    const value = document.getElementById('fitness_value');
+    value.textContent = slider.value;
+    
+    // Update badge color based on value
+    if (slider.value <= 3) {
+        value.className = 'badge bg-success fs-6';
+    } else if (slider.value <= 7) {
+        value.className = 'badge bg-warning fs-6';
+    } else {
+        value.className = 'badge bg-danger fs-6';
+    }
+}
+
+function updateFatigueValue() {
+    const slider = document.getElementById('fatigue_level');
+    const value = document.getElementById('fatigue_value');
+    value.textContent = slider.value;
+    
+    // Update badge color based on value
+    if (slider.value <= 3) {
+        value.className = 'badge bg-success fs-6';
+    } else if (slider.value <= 7) {
+        value.className = 'badge bg-warning fs-6';
+    } else {
+        value.className = 'badge bg-danger fs-6';
+    }
+}
+
+// Initialize values
+updateFitnessValue();
+updateFatigueValue();
+</script>
+{% endblock %}
+

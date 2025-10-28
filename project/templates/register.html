@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Register - FitRec AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="main-content">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-user-plus text-primary me-2"></i>
+                    Create Your Account
+                </h2>
+                <p class="text-muted">Join FitRec AI and start your personalized fitness journey</p>
+            </div>
+
+            <form method="POST" class="needs-validation" novalidate>
+                <!-- Basic Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Basic Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                                <div class="invalid-feedback">
+                                    Please provide a username.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback">
+                                    Please provide a valid email address.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Physical Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>Physical Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="age" class="form-label">Age *</label>
+                                <input type="number" class="form-control" id="age" name="age" min="13" max="100" required>
+                                <div class="invalid-feedback">
+                                    Please provide your age (13-100).
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="gender" class="form-label">Gender *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">Choose...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select your gender.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="weight" class="form-label">Weight (kg) *</label>
+                                <input type="number" class="form-control" id="weight" name="weight" min="30" max="300" step="0.1" required>
+                                <div class="invalid-feedback">
+                                    Please provide your weight in kg.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="height" class="form-label">Height (cm) *</label>
+                                <input type="number" class="form-control" id="height" name="height" min="100" max="250" step="0.1" required>
+                                <div class="invalid-feedback">
+                                    Please provide your height in cm.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fitness Profile -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-dumbbell me-2"></i>Fitness Profile
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="fitness_level" class="form-label">Fitness Level *</label>
+                            <select class="form-select" id="fitness_level" name="fitness_level" required>
+                                <option value="">Choose your fitness level...</option>
+                                <option value="beginner">Beginner - New to fitness or returning after a long break</option>
+                                <option value="intermediate">Intermediate - Regular exercise routine, some experience</option>
+                                <option value="advanced">Advanced - Experienced with various workout types</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select your fitness level.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="goals" class="form-label">Fitness Goals *</label>
+                            <select class="form-select" id="goals" name="goals" required>
+                                <option value="">Choose your primary goal...</option>
+                                <option value="weight_loss">Weight Loss</option>
+                                <option value="muscle_gain">Muscle Gain</option>
+                                <option value="endurance">Endurance & Cardiovascular Health</option>
+                                <option value="flexibility">Flexibility & Mobility</option>
+                                <option value="strength">General Strength</option>
+                                <option value="maintenance">Maintenance & Health</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select your fitness goal.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" class="text-primary">Terms and Conditions</a> and 
+                                <a href="#" class="text-primary">Privacy Policy</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                You must agree before submitting.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </button>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Already have an account? Login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}FitRec AI - AI-Powered Workout Recommendations{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold mb-4">
+                <i class="fas fa-brain text-primary me-3"></i>
+                AI-Powered Workout Recommendations
+            </h1>
+            <p class="lead mb-4">
+                Experience personalized fitness recommendations powered by reinforcement learning. 
+                Our AI learns from your preferences and performance to suggest the perfect workouts for you.
+            </p>
+            <div class="d-flex gap-3">
+                {% if not session.user_id %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket me-2"></i>Get Started
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                <a href="{{ url_for('recommendations') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <div class="position-relative">
+                <div class="workout-card">
+                    <h3><i class="fas fa-dumbbell me-2"></i>Smart Fitness</h3>
+                    <p class="mb-0">AI learns your preferences and adapts recommendations in real-time</p>
+                </div>
+                <div class="workout-card" style="transform: translateX(20px) translateY(20px);">
+                    <h3><i class="fas fa-chart-line me-2"></i>Track Progress</h3>
+                    <p class="mb-0">Monitor your fitness journey with detailed analytics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Why Choose FitRec AI?</h2>
+            <p class="text-muted">Advanced AI technology meets personalized fitness</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-brain fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Reinforcement Learning</h5>
+                    <p class="card-text">
+                        Our AI continuously learns from your feedback and workout performance 
+                        to provide increasingly accurate recommendations.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-user-cog fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Personalized Experience</h5>
+                    <p class="card-text">
+                        Every recommendation is tailored to your fitness level, goals, 
+                        equipment availability, and personal preferences.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-chart-bar fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Smart Analytics</h5>
+                    <p class="card-text">
+                        Track your progress with detailed insights, performance metrics, 
+                        and personalized recommendations for improvement.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">Simple steps to get personalized workout recommendations</p>
+        </div>
+        
+        <div class="col-md-3 text-center mb-4">
+            <div class="position-relative">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="fas fa-user-plus fa-2x"></i>
+                </div>
+                <h5 class="mt-3">1. Create Profile</h5>
+                <p class="text-muted">Tell us about your fitness level, goals, and preferences</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 text-center mb-4">
+            <div class="position-relative">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="fas fa-lightbulb fa-2x"></i>
+                </div>
+                <h5 class="mt-3">2. Get Recommendations</h5>
+                <p class="text-muted">AI analyzes your profile and suggests personalized workouts</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 text-center mb-4">
+            <div class="position-relative">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="fas fa-dumbbell fa-2x"></i>
+                </div>
+                <h5 class="mt-3">3. Complete Workouts</h5>
+                <p class="text-muted">Follow the recommended workouts and track your performance</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3 text-center mb-4">
+            <div class="position-relative">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="fas fa-sync-alt fa-2x"></i>
+                </div>
+                <h5 class="mt-3">4. AI Learns</h5>
+                <p class="text-muted">Provide feedback and watch as AI improves recommendations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row mb-5">
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <i class="fas fa-users fa-2x mb-3"></i>
+                <h3 class="fw-bold">1000+</h3>
+                <p class="mb-0">Active Users</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <i class="fas fa-dumbbell fa-2x mb-3"></i>
+                <h3 class="fw-bold">50+</h3>
+                <p class="mb-0">Workout Types</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <i class="fas fa-chart-line fa-2x mb-3"></i>
+                <h3 class="fw-bold">95%</h3>
+                <p class="mb-0">Accuracy Rate</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="stats-card">
+                <i class="fas fa-star fa-2x mb-3"></i>
+                <h3 class="fw-bold">4.8/5</h3>
+                <p class="mb-0">User Rating</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="workout-card">
+                <h2 class="fw-bold mb-3">Ready to Transform Your Fitness Journey?</h2>
+                <p class="lead mb-4">
+                    Join thousands of users who are already experiencing the power of AI-driven workout recommendations.
+                </p>
+                {% if not session.user_id %}
+                <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-rocket me-2"></i>Start Your Journey
+                </a>
+                {% else %}
+                <a href="{{ url_for('recommendations') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

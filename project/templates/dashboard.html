@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FitRec AI{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="fw-bold mb-2">
+                        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                        Welcome back, {{ user.username }}!
+                    </h1>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ user.fitness_level|title }} • {{ user.goals|replace('_', ' ')|title }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                        <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-dumbbell fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ insights.total_workouts if insights.total_workouts else 0 }}</h3>
+                <p class="mb-0">Total Workouts</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-star fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ "%.1f"|format(insights.average_enjoyment) if insights.average_enjoyment else 0 }}/5</h3>
+                <p class="mb-0">Avg. Enjoyment</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-fire fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ user.weight }}kg</h3>
+                <p class="mb-0">Current Weight</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card">
+                <i class="fas fa-target fa-2x mb-3"></i>
+                <h3 class="fw-bold">{{ user.fitness_level|title }}</h3>
+                <p class="mb-0">Fitness Level</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights -->
+    {% if insights and insights.message is not defined %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-brain text-primary me-2"></i>AI Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if insights.favorite_categories %}
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-chart-pie me-2"></i>Favorite Categories</h6>
+                            {% for category, score in insights.favorite_categories.items() %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary">{{ category|title }}</span>
+                                <span class="text-muted">{{ "%.1f"|format(score) }}/5</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if insights.preferred_difficulty %}
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-layer-group me-2"></i>Preferred Difficulty</h6>
+                            {% for difficulty, score in insights.preferred_difficulty.items() %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-{{ 'success' if difficulty == 'beginner' else 'warning' if difficulty == 'intermediate' else 'danger' }}">
+                                    {{ difficulty|title }}
+                                </span>
+                                <span class="text-muted">{{ "%.1f"|format(score) }}/5</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if insights.top_enjoyed_workouts %}
+                    <div class="mt-3">
+                        <h6><i class="fas fa-heart me-2"></i>Top Enjoyed Workouts</h6>
+                        <div class="row">
+                            {% for workout_name, score in insights.top_enjoyed_workouts[:3] %}
+                            <div class="col-md-4 mb-2">
+                                <div class="card bg-light">
+                                    <div class="card-body p-2 text-center">
+                                        <small class="fw-bold">{{ workout_name }}</small><br>
+                                        <span class="rating-stars">
+                                            {% for i in range(score|int) %}
+                                            <i class="fas fa-star"></i>
+                                            {% endfor %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Workouts -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history text-primary me-2"></i>Recent Workouts
+                    </h5>
+                    <a href="{{ url_for('workout_history') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-list me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_workouts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Workout</th>
+                                    <th>Date</th>
+                                    <th>Duration</th>
+                                    <th>Enjoyment</th>
+                                    <th>Difficulty</th>
+                                    <th>Completion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for history in recent_workouts %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('workout_detail', workout_id=history.workout.id) }}" class="text-decoration-none">
+                                            <strong>{{ history.workout.name }}</strong>
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">{{ history.workout.category|title }}</small>
+                                    </td>
+                                    <td>{{ history.date.strftime('%b %d, %Y') }}</td>
+                                    <td>{% if history.duration is not none %}{{ history.duration }} min{% else %}N/A{% endif %}</td>
+                                    <td>
+                                        <span class="rating-stars">
+                                            {% if history.enjoyment_rating is not none %}
+                                                {% for i in range(history.enjoyment_rating) %}
+                                                <i class="fas fa-star"></i>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="difficulty-badge difficulty-{{ history.workout.difficulty }}">
+                                            {{ history.workout.difficulty|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            {% if history.completion_rate is not none %}
+                                                <div class="progress-bar bg-success" style="width: {{ history.completion_rate * 100 }}%">
+                                                    {{ "%.0f"|format(history.completion_rate * 100) }}%
+                                                </div>
+                                            {% else %}
+                                                <div class="progress-bar bg-success" style="width: 0%">
+                                                    N/A
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-dumbbell fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No workouts completed yet</h5>
+                        <p class="text-muted">Start your fitness journey by completing your first workout!</p>
+                        <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                            <i class="fas fa-lightbulb me-2"></i>Get Recommendations
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-primary me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ url_for('health_input') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-heartbeat fa-2x mb-2"></i><br>
+                                Health Input
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ url_for('recommendations') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-lightbulb fa-2x mb-2"></i><br>
+                                Get Recommendations
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ url_for('workout_history') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-history fa-2x mb-2"></i><br>
+                                View History
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ url_for('analytics') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-chart-bar fa-2x mb-2"></i><br>
+                                Analytics
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ url_for('profile') }}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-user-edit fa-2x mb-2"></i><br>
+                                Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-dark w-100">
+                                <i class="fas fa-terminal fa-2x mb-2"></i><br>
+                                CLI Mode
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

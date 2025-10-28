@@ -1,0 +1,9 @@
+{
+  "exercises": {
+    "Rest": {"intensity": 0},
+    "Squat": {"intensity": 1},
+    "Pushup": {"intensity": 2},
+    "Burpees": {"intensity": 3},
+    "Rehab Mobility": {"intensity": 1}
+  }
+}
